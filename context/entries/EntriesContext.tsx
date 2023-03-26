@@ -7,6 +7,7 @@ export interface ContextProps {
 
     //methods
     addNewEntry: (description: string) => void;
+    updateEntry: (entry: Entry) => void;
 }
 
 
