@@ -47,8 +47,8 @@ export const NewEntry = () => {
 							variant="text"
 							color="error"
 							onClick={() => {
-								setIsAddingEntry(false);
 								setTouched(false);
+								setIsAddingEntry(false);
 							}}
 						>
 							Cancelar
