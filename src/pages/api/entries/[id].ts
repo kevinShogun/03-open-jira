@@ -20,6 +20,8 @@ export default function handler(
 			return updateEntry(req, res);
 		case "GET": 
 			return getOneEntry(req, res);
+		case "DELETE":
+			return deleteEntry(req, res);
 		default:
 			return res.status(400).json({ message: "Endpoint no existe" });
 	}
@@ -92,3 +94,32 @@ const getOneEntry = async(req: NextApiRequest, res: NextApiResponse<Data>) => {
 
 	res.status(200).json(thisEntry!);
 }
+
+
+const deleteEntry = async(req: NextApiRequest, res: NextApiResponse<Data>) => {
+
+	const { id } = req.query;
+
+	await db.connect();
+
+	try {
+		await Entry.deleteOne({_id: id});
+		
+		return res.status(200)
+		.json({
+			message: `Eliminacion correcta del objeto: ${id}`,
+		});
+		
+	} catch (error) {
+		await db.disconnect();
+		console.log(error);
+		return res
+			.status(500)
+			.json({
+				message: `Ocurrio un error al momento de eliminar el objeto con ID: ${id}`,
+			});
+	}
+
+}
+
+

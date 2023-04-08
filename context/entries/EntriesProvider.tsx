@@ -2,6 +2,7 @@ import { FC, ReactNode, useEffect, useReducer } from "react";
 import { Entry } from "interfaces";
 import { EntriesContext, entriesReducer } from "./";
 import { entriesApi } from "apis";
+import { useSnackbar } from "notistack";
 
 interface Props {
 	children: ReactNode | ReactNode[];
@@ -18,6 +19,8 @@ const ENTRIES_INITIAL_STATE: EntriesState = {
 export const EntriesProvider: FC<Props> = ({ children }) => {
 	const [state, dispatch] = useReducer(entriesReducer, ENTRIES_INITIAL_STATE);
 
+	const { enqueueSnackbar } = useSnackbar();
+
 	const addNewEntry = async (description: string) => {
 		const { data } = await entriesApi.post<Entry>("/entries", { description });
 
@@ -27,7 +30,10 @@ export const EntriesProvider: FC<Props> = ({ children }) => {
 		});
 	};
 
-	const updateEntry = async ({ _id, description, status }: Entry) => {
+	const updateEntry = async (
+		{ _id, description, status }: Entry,
+		showSnackBar = false
+	) => {
 		try {
 			const { data } = await entriesApi.put<Entry>(`/entries/${_id}`, {
 				description: description,
@@ -38,9 +44,21 @@ export const EntriesProvider: FC<Props> = ({ children }) => {
 				type: "Entries - Update",
 				payload: data,
 			});
+
+			if (showSnackBar)
+				enqueueSnackbar("Entrada Actualizada", {
+					variant: "success",
+					autoHideDuration: 1500,
+					anchorOrigin: {
+						vertical: "top",
+						horizontal: "right",
+					},
+				});
+
+			refreshEntries();
 		} catch (error) {
-            console.log(error);
-        }
+			console.log(error);
+		}
 	};
 
 	const refreshEntries = async () => {
@@ -48,6 +66,22 @@ export const EntriesProvider: FC<Props> = ({ children }) => {
 		dispatch({ type: "Entries - Refresh-Data", payload: data });
 	};
 
+
+	const deleteEntry = async (id: string) => {
+
+		await entriesApi.delete(`/entries/${id}`);
+
+		enqueueSnackbar("Entrada eliminada correctamente", {
+			variant: "error",
+			autoHideDuration: 1500,
+			anchorOrigin: {
+				vertical: "top",
+				horizontal: "right",
+			},
+		});
+		refreshEntries();
+
+	}
 	useEffect(() => {
 		refreshEntries();
 	}, []);
@@ -59,6 +93,7 @@ export const EntriesProvider: FC<Props> = ({ children }) => {
 				//Methods
 				addNewEntry,
 				updateEntry,
+				deleteEntry,
 			}}
 		>
 			{children}

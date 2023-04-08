@@ -47,7 +47,7 @@ export const EntryList: FC<Props> = ({ status }) => {
 				}}
 			>
 				<List sx={{ opacity: isDraggin ? 0.4 : 1, transition: 'all ease-in 0.5s' }}>
-					{entriesByStatus.map((e, index) => (
+					{entriesByStatus.map((e) => (
 						<EntryCard key={e._id} entry={e} />
 					))}
 				</List>
